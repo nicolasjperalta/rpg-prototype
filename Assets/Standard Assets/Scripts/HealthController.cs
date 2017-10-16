@@ -6,15 +6,24 @@ public class HealthController : MonoBehaviour {
 
 	[SerializeField] float Health;
 
-	public void substract(float ammount){
+    public void substract(float ammount){
 		Health -= ammount;
 		if (!isAlive ()) {
-			Destroy (gameObject);
+            StartCoroutine(die());
 		}
 	}
 
-	bool isAlive(){
+	public bool isAlive(){
 		return Health > 0;
 	}
+
+    IEnumerator die()
+    {
+        yield return new WaitForSeconds(2);
+
+        Destroy(gameObject);
+
+        yield break;
+    }
 
 }

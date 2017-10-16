@@ -3,15 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Nico {
 	public class DamageController : MonoBehaviour {
-		HealthController m_healthCtrl;
+
+        private HealthController m_healthCtrl;
+        private Animator animController;
+        private EnemyMovement m_enemyMovement;
 
 		// Use this for initialization
 		void Start () {
 			m_healthCtrl = GetComponent<HealthController> ();
+            animController = GetComponent<Animator>();
+            m_enemyMovement = GetComponent<EnemyMovement>();
 		}
 		
 		void makeDamage(float ammount){
-			m_healthCtrl.subtract (ammount);
+            if (m_healthCtrl.isAlive())
+            {
+                m_healthCtrl.substract(ammount);
+                animController.SetTrigger("damage");
+
+                if (!m_healthCtrl.isAlive())
+                {
+                    animController.SetTrigger("dead");
+                    m_enemyMovement.enabled = false;
+                }
+              }
+			
 		}
 
 	}
