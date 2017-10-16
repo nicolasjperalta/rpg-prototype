@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace Nico {
+namespace Nico{
 	public class DamageController : MonoBehaviour {
 
         private HealthController m_healthCtrl;
@@ -15,7 +15,7 @@ namespace Nico {
             m_enemyMovement = GetComponent<EnemyMovement>();
 		}
 		
-		void makeDamage(float ammount){
+		public void makeDamage(float ammount){
             if (m_healthCtrl.isAlive())
             {
                 m_healthCtrl.substract(ammount);
@@ -24,11 +24,12 @@ namespace Nico {
                 if (!m_healthCtrl.isAlive())
                 {
                     animController.SetTrigger("dead");
-                    m_enemyMovement.enabled = false;
+                    if(m_enemyMovement != null)
+                        m_enemyMovement.enabled = false;
                 }
               }
 			
 		}
 
-	}
+    }
 }

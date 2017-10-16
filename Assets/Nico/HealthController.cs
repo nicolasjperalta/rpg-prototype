@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Nico
 {
-
     public class HealthController : MonoBehaviour
     {
 

@@ -10,12 +10,10 @@ public class EnemyMovement : MonoBehaviour {
     public float aggroRadio;
     public float runSpeed;
     public float runAngularSpeed;
-    public float attackDelay;
-    public float attackRange;
+
 
     private bool isPursuing;  //indicates if the enemy is pursuing the character or it can walk freely
     private bool isWalking;
-    private bool isAttacking;
 
     private float direction;
     private float distance;
@@ -23,10 +21,10 @@ public class EnemyMovement : MonoBehaviour {
     private float walkAngularSpeed;
 
     private WaitForSeconds walkWait;
-    private WaitForSeconds attackWait;
     private Vector3 destination;
     private NavMeshAgent navAgent;
     private Animator animController;
+    private EnemyAttack m_enemyAttack;
     private SphereCollider aggroRange;
     private GameObject target;
 
@@ -37,14 +35,13 @@ public class EnemyMovement : MonoBehaviour {
 	void Start () {
         isPursuing = false;
         isWalking = false;
-        isAttacking = false;
 
         walkWait = new WaitForSeconds(10);
-        attackWait = new WaitForSeconds(attackDelay);
         navAgent = GetComponent<NavMeshAgent>();
         animController = GetComponent<Animator>();
         StartCoroutine(getRandomDestination());
         aggroRange = GetComponent<SphereCollider>();
+        m_enemyAttack = GetComponent<EnemyAttack>();
 
         aggroRange.radius = aggroRadio;
         walkSpeed = navAgent.speed;
@@ -62,12 +59,8 @@ public class EnemyMovement : MonoBehaviour {
                 isWalking = false;
             }
 
-            if (isPursuing && !isAttacking)
-                StartCoroutine(attack());
-
-            if (isAttacking)
-                faceTarget();
-
+            if (isPursuing)
+                m_enemyAttack.attack(target);
         }
         
 
@@ -86,10 +79,6 @@ public class EnemyMovement : MonoBehaviour {
         StartCoroutine(pursueTarget());
     }
 
-    void faceTarget()
-    {
-        gameObject.transform.LookAt(target.transform);
-    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -126,35 +115,19 @@ public class EnemyMovement : MonoBehaviour {
 
     IEnumerator pursueTarget()
     {
-        while (isPursuing)
+        while (isPursuing && target != null)
         {
             navAgent.destination = target.transform.position;
 
             yield return updateDelay;
         }
 
+        isPursuing = false;
+
+        animController.SetTrigger("idle");
         navAgent.speed = walkSpeed;
         navAgent.angularSpeed = walkAngularSpeed;
-
-        yield break;
-    }
-
-    IEnumerator attack()
-    {
-        animController.SetTrigger("attack");
-        navAgent.Stop();
-
-        isAttacking = true;
-
-        while (navAgent.remainingDistance < navAgent.stoppingDistance)
-        {
-            //make the attack and aply damage
-            yield return attackDelay;
-        }
-
         navAgent.Resume();
-        animController.SetTrigger("run");
-        isAttacking = false;
 
         yield break;
     }
